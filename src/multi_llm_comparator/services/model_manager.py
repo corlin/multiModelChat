@@ -182,10 +182,10 @@ class ModelManager:
                 f"最多只能选择 {self.MAX_SELECTED_MODELS} 个模型，当前选择了 {len(model_ids)} 个"
             )
         
-        # 验证所有模型都存在
+        # 验证所有模型都存在（包括本地模型和API模型）
         missing_models = []
         for model_id in model_ids:
-            if model_id not in self._available_models:
+            if self.get_model_by_id(model_id) is None:
                 missing_models.append(model_id)
         
         if missing_models:
@@ -220,7 +220,7 @@ class ModelManager:
                 f"已达到最大选择数量限制 ({self.MAX_SELECTED_MODELS})"
             )
         
-        if model_id not in self._available_models:
+        if self.get_model_by_id(model_id) is None:
             raise ModelNotFoundError(f"模型不存在: {model_id}")
         
         self._selected_model_ids.add(model_id)
@@ -259,7 +259,8 @@ class ModelManager:
         """
         selected_models = []
         for model_id in self._selected_model_ids:
-            model = self._available_models.get(model_id)
+            # 使用get_model_by_id来同时查找本地模型和API模型
+            model = self.get_model_by_id(model_id)
             if model:
                 # 确保模型有配置，如果没有则使用默认配置
                 if not model.config:
@@ -344,7 +345,8 @@ class ModelManager:
         except Exception as e:
             self.logger.error(f"加载API模型失败: {str(e)}")
     
-    def add_doubao_model(self, model_id: str, model_name: str, display_name: Optional[str] = None) -> ModelInfo:
+    def add_doubao_model(self, model_id: str, model_name: str, display_name: Optional[str] = None, 
+                        api_key: Optional[str] = None, base_url: Optional[str] = None) -> ModelInfo:
         """
         添加Doubao模型
         
@@ -352,17 +354,39 @@ class ModelManager:
             model_id: 模型ID
             model_name: 模型名称
             display_name: 显示名称
+            api_key: API密钥（可选，留空则使用环境变量）
+            base_url: API基础URL（可选）
             
         Returns:
             ModelInfo: 创建的模型信息
         """
-        return self.api_manager.add_doubao_model(model_id, model_name, display_name)
+        return self.api_manager.add_doubao_model(model_id, model_name, display_name, api_key, base_url)
+    
+    def add_openai_compatible_model(self, model_id: str, model_name: str, display_name: Optional[str] = None, 
+                                  api_key: Optional[str] = None, base_url: Optional[str] = None, 
+                                  provider: str = "OpenAI Compatible") -> ModelInfo:
+        """
+        添加OpenAI兼容模型
+        
+        Args:
+            model_id: 模型ID
+            model_name: 模型名称
+            display_name: 显示名称
+            api_key: API密钥（可选，留空则使用环境变量）
+            base_url: API基础URL（可选）
+            provider: 提供商名称
+            
+        Returns:
+            ModelInfo: 创建的模型信息
+        """
+        return self.api_manager.add_openai_compatible_model(model_id, model_name, display_name, api_key, base_url, provider)
     
     def _cleanup_invalid_selections(self) -> None:
         """清理无效的选中模型（不存在的模型）"""
         valid_selections = set()
         for model_id in self._selected_model_ids:
-            if model_id in self._available_models:
+            # 使用get_model_by_id来检查本地模型和API模型
+            if self.get_model_by_id(model_id) is not None:
                 valid_selections.add(model_id)
             else:
                 self.logger.warning(f"清理无效的选中模型: {model_id}")

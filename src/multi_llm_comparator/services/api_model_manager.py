@@ -132,6 +132,58 @@ class APIModelManager:
         logger.info(f"已添加OpenAI模型: {model_info.name}")
         return model_info
     
+    def add_openai_compatible_model(
+        self, 
+        model_id: str, 
+        model_name: str, 
+        display_name: Optional[str] = None,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        provider: str = "OpenAI Compatible"
+    ) -> ModelInfo:
+        """
+        添加OpenAI兼容模型（通用方法）
+        
+        Args:
+            model_id: 模型ID
+            model_name: 模型名称
+            display_name: 显示名称
+            api_key: API密钥
+            base_url: API基础URL
+            provider: 提供商名称
+            
+        Returns:
+            ModelInfo: 创建的模型信息
+        """
+        # 创建默认配置
+        config = ModelConfig(
+            temperature=0.7,
+            max_tokens=1024,
+            top_p=0.9,
+            api_key=api_key,
+            base_url=base_url or "https://api.openai.com/v1",
+            model_name=model_id,
+            stream=True,
+            presence_penalty=0.0,
+            frequency_penalty=0.0
+        )
+        
+        # 创建模型信息
+        model_info = ModelInfo(
+            id=f"openai_compatible_{model_id}",
+            name=display_name or f"{provider} {model_name}",
+            path=model_id,  # 对于API模型，path存储模型ID
+            model_type=ModelType.OPENAI_API,
+            size=0,  # API模型没有本地大小
+            config=asdict(config)
+        )
+        
+        self.api_models[model_info.id] = model_info
+        self._save_api_models()
+        
+        logger.info(f"已添加{provider}模型: {model_info.name}")
+        return model_info
+    
     def get_api_models(self) -> List[ModelInfo]:
         """
         获取所有API模型

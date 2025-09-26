@@ -85,6 +85,7 @@
     }
   },
   "selected_model_ids": [
+    "doubao_doubao-seed-1-6-250615",
     "models/gguf/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-bf16.gguf"
   ],
   "last_scan_directories": [

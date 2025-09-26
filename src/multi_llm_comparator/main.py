@@ -14,6 +14,10 @@ from typing import Dict, Any, List
 import sys
 from pathlib import Path
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
 # Add the src directory to the Python path
 src_path = Path(__file__).parent.parent
 sys.path.insert(0, str(src_path))
@@ -149,43 +153,73 @@ def render_sidebar():
         st.divider()
         st.subheader("🌐 API模型")
         
-        with st.expander("➕ 添加Doubao模型"):
-            with st.form("add_doubao_model"):
-                st.write("添加新的Doubao模型")
+        with st.expander("➕ 添加OpenAI兼容模型"):
+            with st.form("add_openai_compatible_model"):
+                st.write("添加新的OpenAI兼容模型")
                 
-                doubao_model_id = st.text_input(
-                    "模型ID",
-                    value="doubao-seed-1-6-250615",
-                    help="Doubao模型的ID，如doubao-seed-1-6-250615"
+                # 提供商选择
+                provider_options = {
+                    "Doubao (豆包)": {
+                        "default_base_url": "https://ark.cn-beijing.volces.com/api/v3",
+                        "default_model_id": "doubao-seed-1-6-250615",
+                        "env_var_hint": "ARK_API_KEY"
+                    },
+                    "OpenAI": {
+                        "default_base_url": "https://api.openai.com/v1",
+                        "default_model_id": "gpt-3.5-turbo",
+                        "env_var_hint": "OPENAI_API_KEY"
+                    },
+                    "其他兼容服务": {
+                        "default_base_url": "https://api.example.com/v1",
+                        "default_model_id": "custom-model",
+                        "env_var_hint": "API_KEY"
+                    }
+                }
+                
+                selected_provider = st.selectbox(
+                    "选择提供商",
+                    options=list(provider_options.keys()),
+                    help="选择API提供商类型"
                 )
                 
-                doubao_display_name = st.text_input(
+                provider_config = provider_options[selected_provider]
+                
+                model_id = st.text_input(
+                    "模型ID",
+                    value=provider_config["default_model_id"],
+                    help="模型的ID，如gpt-3.5-turbo、doubao-seed-1-6-250615等"
+                )
+                
+                display_name = st.text_input(
                     "显示名称",
                     value="",
                     help="在界面中显示的名称"
                 )
                 
-                doubao_api_key = st.text_input(
+                api_key = st.text_input(
                     "API Key (可选)",
                     value="",
                     type="password",
-                    help="留空则使用环境变量ARK_API_KEY"
+                    help=f"留空则使用环境变量{provider_config['env_var_hint']}"
                 )
                 
-                doubao_base_url = st.text_input(
+                base_url = st.text_input(
                     "Base URL (可选)",
-                    value="https://ark.cn-beijing.volces.com/api/v3",
+                    value=provider_config["default_base_url"],
                     help="API基础URL"
                 )
                 
                 if st.form_submit_button("添加模型"):
                     try:
-                        model_info = st.session_state.model_manager.add_doubao_model(
-                            model_id=doubao_model_id,
-                            model_name=doubao_model_id.split('-')[-1] if '-' in doubao_model_id else doubao_model_id,
-                            display_name=doubao_display_name or f"Doubao {doubao_model_id}"
+                        model_info = st.session_state.model_manager.add_openai_compatible_model(
+                            model_id=model_id,
+                            model_name=model_id.split('-')[-1] if '-' in model_id else model_id,
+                            display_name=display_name or f"{selected_provider} {model_id}",
+                            api_key=api_key.strip() if api_key.strip() else None,
+                            base_url=base_url.strip() if base_url.strip() else None,
+                            provider=selected_provider
                         )
-                        st.success(f"✅ 已添加Doubao模型: {model_info.name}")
+                        st.success(f"✅ 已添加{selected_provider}模型: {model_info.name}")
                         st.rerun()
                     except Exception as e:
                         st.error(f"添加模型失败: {str(e)}")
