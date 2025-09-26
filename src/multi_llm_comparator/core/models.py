@@ -13,6 +13,7 @@ class ModelType(Enum):
     """模型类型枚举"""
     PYTORCH = "pytorch"
     GGUF = "gguf"
+    OPENAI_API = "openai_api"
 
 
 @dataclass
@@ -68,3 +69,11 @@ class ModelConfig:
     # 内存管理参数
     low_cpu_mem_usage: bool = True
     torch_dtype: str = "auto"
+    
+    # OpenAI API特定参数
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
+    model_name: Optional[str] = None
+    stream: bool = True
+    presence_penalty: float = 0.0
+    frequency_penalty: float = 0.0

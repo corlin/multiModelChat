@@ -22,6 +22,7 @@ from ..core.exceptions import (
 from ..inferencers.base import BaseInferencer
 from ..inferencers.pytorch_inferencer import PyTorchInferencer
 from ..inferencers.gguf_inferencer import GGUFInferencer
+from ..inferencers.openai_inferencer import OpenAIInferencer, DoubaoInferencer
 from ..services.memory_manager import MemoryManager
 from ..services.error_handler import handle_error
 from ..services.recovery_manager import attempt_recovery
@@ -88,6 +89,12 @@ class InferenceEngine:
             return PyTorchInferencer()
         elif model_info.model_type == ModelType.GGUF:
             return GGUFInferencer()
+        elif model_info.model_type == ModelType.OPENAI_API:
+            # 根据模型名称判断是否为Doubao模型
+            if "doubao" in model_info.name.lower() or "doubao" in model_info.path.lower():
+                return DoubaoInferencer()
+            else:
+                return OpenAIInferencer()
         else:
             raise InferenceError(f"不支持的模型类型: {model_info.model_type}")
     

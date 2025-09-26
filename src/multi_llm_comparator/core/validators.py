@@ -43,6 +43,11 @@ class ParameterValidator:
         "repeat_penalty", "n_ctx", "n_threads", "use_gpu"
     }
     
+    OPENAI_API_PARAMETERS = {
+        "temperature", "max_tokens", "top_p", "api_key", "base_url", 
+        "model_name", "stream", "presence_penalty", "frequency_penalty"
+    }
+    
     # 有效的torch_dtype值
     VALID_TORCH_DTYPES = {
         "auto", "float16", "bfloat16", "float32", "int8", "int4"
@@ -193,6 +198,8 @@ class ParameterValidator:
             return param_name in self.PYTORCH_PARAMETERS
         elif model_type == ModelType.GGUF:
             return param_name in self.GGUF_PARAMETERS
+        elif model_type == ModelType.OPENAI_API:
+            return param_name in self.OPENAI_API_PARAMETERS
         return True
     
     def _validate_type(self, param_name: str, value: Any) -> bool:
@@ -293,9 +300,11 @@ class ParameterValidator:
             return self.PYTORCH_PARAMETERS
         elif model_type == ModelType.GGUF:
             return self.GGUF_PARAMETERS
+        elif model_type == ModelType.OPENAI_API:
+            return self.OPENAI_API_PARAMETERS
         else:
             # 如果模型类型未知，返回所有参数
-            return self.PYTORCH_PARAMETERS.union(self.GGUF_PARAMETERS)
+            return self.PYTORCH_PARAMETERS.union(self.GGUF_PARAMETERS).union(self.OPENAI_API_PARAMETERS)
     
     def _check_parameter_compatibility(
         self, 

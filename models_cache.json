@@ -85,9 +85,7 @@
     }
   },
   "selected_model_ids": [
-    "models/gguf/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-bf16.gguf",
-    "models/pytorch/work0925",
-    "models/gguf/Qwen_Qwen3-4B-Instruct-2507-GGUF/Qwen_Qwen3-4B-Instruct-2507-bf16.gguf"
+    "models/gguf/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-bf16.gguf"
   ],
   "last_scan_directories": [
     "models/pytorch",

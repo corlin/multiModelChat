@@ -13,6 +13,7 @@ from dataclasses import asdict
 from ..core.models import ModelInfo, ModelType
 from ..core.exceptions import ModelSelectionError, ModelNotFoundError
 from .model_scanner import ModelFileScanner, ScanResult
+from .api_model_manager import APIModelManager
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,7 @@ class ModelManager:
         """
         self.logger = logging.getLogger(self.__class__.__name__)
         self.scanner = ModelFileScanner()
+        self.api_manager = APIModelManager()
         
         # 设置缓存文件路径
         if cache_file is None:
@@ -45,6 +47,9 @@ class ModelManager:
         
         # 尝试加载缓存
         self._load_cache()
+        
+        # 加载API模型
+        self._load_api_models()
     
     def scan_models(self, directories: List[str], recursive: bool = True, 
                    force_rescan: bool = False) -> ScanResult:
@@ -115,16 +120,19 @@ class ModelManager:
     
     def get_available_models(self) -> List[ModelInfo]:
         """
-        获取所有可用的模型列表
+        获取所有可用的模型列表（包括本地模型和API模型）
         
         Returns:
             List[ModelInfo]: 可用模型列表
         """
-        return list(self._available_models.values())
+        all_models = list(self._available_models.values())
+        api_models = self.api_manager.get_api_models()
+        all_models.extend(api_models)
+        return all_models
     
     def get_model_by_id(self, model_id: str) -> Optional[ModelInfo]:
         """
-        根据ID获取模型信息
+        根据ID获取模型信息（包括本地模型和API模型）
         
         Args:
             model_id: 模型ID
@@ -132,7 +140,18 @@ class ModelManager:
         Returns:
             ModelInfo: 模型信息，如果不存在则返回None
         """
-        return self._available_models.get(model_id)
+        # 先查找本地模型
+        model = self._available_models.get(model_id)
+        if model:
+            return model
+        
+        # 再查找API模型
+        api_models = self.api_manager.get_api_models()
+        for api_model in api_models:
+            if api_model.id == model_id:
+                return api_model
+        
+        return None
     
     def get_models_by_type(self, model_type: ModelType) -> List[ModelInfo]:
         """
@@ -297,21 +316,47 @@ class ModelManager:
         Returns:
             Dict: 包含统计信息的字典
         """
-        pytorch_count = len(self.get_models_by_type(ModelType.PYTORCH))
-        gguf_count = len(self.get_models_by_type(ModelType.GGUF))
+        all_models = self.get_available_models()
+        pytorch_count = len([m for m in all_models if m.model_type == ModelType.PYTORCH])
+        gguf_count = len([m for m in all_models if m.model_type == ModelType.GGUF])
+        api_count = len([m for m in all_models if m.model_type == ModelType.OPENAI_API])
         
+        # 只计算本地模型的大小
         total_size = sum(model.size for model in self._available_models.values())
         
         return {
-            'total_models': len(self._available_models),
+            'total_models': len(all_models),
             'pytorch_models': pytorch_count,
             'gguf_models': gguf_count,
+            'api_models': api_count,
             'selected_models': len(self._selected_model_ids),
             'max_selection': self.MAX_SELECTED_MODELS,
             'total_size_bytes': total_size,
             'total_size_mb': round(total_size / (1024 * 1024), 2),
             'total_size_gb': round(total_size / (1024 * 1024 * 1024), 2),
         }
+    
+    def _load_api_models(self) -> None:
+        """加载API模型"""
+        try:
+            api_models = self.api_manager.get_api_models()
+            self.logger.info(f"加载了 {len(api_models)} 个API模型")
+        except Exception as e:
+            self.logger.error(f"加载API模型失败: {str(e)}")
+    
+    def add_doubao_model(self, model_id: str, model_name: str, display_name: Optional[str] = None) -> ModelInfo:
+        """
+        添加Doubao模型
+        
+        Args:
+            model_id: 模型ID
+            model_name: 模型名称
+            display_name: 显示名称
+            
+        Returns:
+            ModelInfo: 创建的模型信息
+        """
+        return self.api_manager.add_doubao_model(model_id, model_name, display_name)
     
     def _cleanup_invalid_selections(self) -> None:
         """清理无效的选中模型（不存在的模型）"""

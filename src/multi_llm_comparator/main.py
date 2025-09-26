@@ -120,9 +120,13 @@ def render_sidebar():
             
             # 显示统计信息
             with st.expander("📊 模型统计"):
-                st.metric("PyTorch模型", stats['pytorch_models'])
-                st.metric("GGUF模型", stats['gguf_models'])
-                st.metric("总大小", f"{stats['total_size_gb']:.2f} GB")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("PyTorch模型", stats['pytorch_models'])
+                    st.metric("GGUF模型", stats['gguf_models'])
+                with col2:
+                    st.metric("API模型", stats.get('api_models', 0))
+                    st.metric("总大小", f"{stats['total_size_gb']:.2f} GB")
         
         # 显示流式输出性能监控（仅在有活动时显示）
         if st.session_state.get('comparison_running', False) or st.session_state.get('streaming_mode', False):
@@ -140,6 +144,65 @@ def render_sidebar():
                             refresh_rate = 1 / avg_interval if avg_interval > 0 else 0
                             st.metric("平均刷新率", f"{refresh_rate:.1f} Hz")
                             st.metric("平均间隔", f"{avg_interval*1000:.0f} ms")
+        
+        # API模型管理
+        st.divider()
+        st.subheader("🌐 API模型")
+        
+        with st.expander("➕ 添加Doubao模型"):
+            with st.form("add_doubao_model"):
+                st.write("添加新的Doubao模型")
+                
+                doubao_model_id = st.text_input(
+                    "模型ID",
+                    value="doubao-seed-1-6-250615",
+                    help="Doubao模型的ID，如doubao-seed-1-6-250615"
+                )
+                
+                doubao_display_name = st.text_input(
+                    "显示名称",
+                    value="",
+                    help="在界面中显示的名称"
+                )
+                
+                doubao_api_key = st.text_input(
+                    "API Key (可选)",
+                    value="",
+                    type="password",
+                    help="留空则使用环境变量ARK_API_KEY"
+                )
+                
+                doubao_base_url = st.text_input(
+                    "Base URL (可选)",
+                    value="https://ark.cn-beijing.volces.com/api/v3",
+                    help="API基础URL"
+                )
+                
+                if st.form_submit_button("添加模型"):
+                    try:
+                        model_info = st.session_state.model_manager.add_doubao_model(
+                            model_id=doubao_model_id,
+                            model_name=doubao_model_id.split('-')[-1] if '-' in doubao_model_id else doubao_model_id,
+                            display_name=doubao_display_name or f"Doubao {doubao_model_id}"
+                        )
+                        st.success(f"✅ 已添加Doubao模型: {model_info.name}")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"添加模型失败: {str(e)}")
+        
+        # 显示已添加的API模型
+        api_models = st.session_state.model_manager.api_manager.get_api_models()
+        if api_models:
+            with st.expander("📋 已配置的API模型"):
+                for model in api_models:
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.text(f"🌐 {model.name}")
+                        st.caption(f"ID: {model.path}")
+                    with col2:
+                        if st.button("🗑️", key=f"remove_{model.id}", help="删除模型"):
+                            st.session_state.model_manager.api_manager.remove_model(model.id)
+                            st.rerun()
 
 
 def scan_models(directories: List[str], recursive: bool = True):
@@ -410,6 +473,55 @@ def render_single_model_config(model):
                     help="启用GPU加速"
                 )
         
+        elif model.model_type == ModelType.OPENAI_API:
+            st.write("**OpenAI API 特定参数**")
+            col5, col6 = st.columns(2)
+            
+            with col5:
+                api_key = st.text_input(
+                    "API Key",
+                    value=current_config.api_key or "",
+                    type="password",
+                    help="OpenAI API密钥（留空则使用环境变量）"
+                )
+                
+                base_url = st.text_input(
+                    "Base URL",
+                    value=current_config.base_url or "https://ark.cn-beijing.volces.com/api/v3",
+                    help="API基础URL"
+                )
+                
+                model_name = st.text_input(
+                    "Model Name",
+                    value=current_config.model_name or "doubao-seed-1-6-250615",
+                    help="模型名称"
+                )
+            
+            with col6:
+                presence_penalty = st.slider(
+                    "Presence Penalty",
+                    min_value=-2.0,
+                    max_value=2.0,
+                    value=current_config.presence_penalty,
+                    step=0.1,
+                    help="存在惩罚参数"
+                )
+                
+                frequency_penalty = st.slider(
+                    "Frequency Penalty",
+                    min_value=-2.0,
+                    max_value=2.0,
+                    value=current_config.frequency_penalty,
+                    step=0.1,
+                    help="频率惩罚参数"
+                )
+                
+                stream = st.checkbox(
+                    "Enable Streaming",
+                    value=current_config.stream,
+                    help="启用流式输出"
+                )
+        
         # 保存按钮
         if st.form_submit_button("💾 保存配置"):
             try:
@@ -425,6 +537,12 @@ def render_single_model_config(model):
                     repeat_penalty=repeat_penalty if model.model_type == ModelType.GGUF else current_config.repeat_penalty,
                     n_ctx=n_ctx if model.model_type == ModelType.GGUF else current_config.n_ctx,
                     use_gpu=use_gpu if model.model_type == ModelType.GGUF else current_config.use_gpu,
+                    api_key=api_key if model.model_type == ModelType.OPENAI_API else current_config.api_key,
+                    base_url=base_url if model.model_type == ModelType.OPENAI_API else current_config.base_url,
+                    model_name=model_name if model.model_type == ModelType.OPENAI_API else current_config.model_name,
+                    stream=stream if model.model_type == ModelType.OPENAI_API else current_config.stream,
+                    presence_penalty=presence_penalty if model.model_type == ModelType.OPENAI_API else current_config.presence_penalty,
+                    frequency_penalty=frequency_penalty if model.model_type == ModelType.OPENAI_API else current_config.frequency_penalty,
                 )
                 
                 # 验证并保存配置
@@ -958,7 +1076,14 @@ def render_streaming_output(model_id: str, content: str, token_count: int, start
 def render_single_model_output(model, is_second_row=False):
     """渲染单个模型的输出区域"""
     # 模型标题和状态
-    model_type_icon = "🔥" if model.model_type == ModelType.PYTORCH else "⚡"
+    if model.model_type == ModelType.PYTORCH:
+        model_type_icon = "🔥"
+    elif model.model_type == ModelType.GGUF:
+        model_type_icon = "⚡"
+    elif model.model_type == ModelType.OPENAI_API:
+        model_type_icon = "🌐"
+    else:
+        model_type_icon = "❓"
     
     # 获取输出状态 - 优先使用output_containers中的数据，因为它更实时
     output_data = st.session_state.output_containers.get(model.id, {})
