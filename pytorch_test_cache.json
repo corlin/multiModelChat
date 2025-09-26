@@ -1,0 +1,132 @@
+{
+  "available_models": {
+    "models/pytorch/chatglm3-6b": {
+      "id": "models/pytorch/chatglm3-6b",
+      "name": "chatglm3-6b",
+      "path": "models\\pytorch\\chatglm3-6b",
+      "model_type": "pytorch",
+      "size": 333,
+      "config": {
+        "framework": "pytorch",
+        "model_type": "directory",
+        "directory_name": "chatglm3-6b",
+        "absolute_path": "D:\\homedev\\multiModel\\models\\pytorch\\chatglm3-6b",
+        "relative_path": "models\\pytorch\\chatglm3-6b",
+        "is_standalone": false,
+        "supports_streaming": true,
+        "requires_tokenizer": true,
+        "has_config": true,
+        "has_tokenizer": true,
+        "model_files": [
+          "model.safetensors"
+        ],
+        "format": "safetensors",
+        "memory_efficient": true,
+        "model_architecture": "chatglm",
+        "vocab_size": 65024,
+        "hidden_size": 4096,
+        "num_attention_heads": 32,
+        "num_hidden_layers": 28,
+        "file_count": 6,
+        "found_model_files": [
+          "model.safetensors"
+        ],
+        "main_model_file": "model.safetensors",
+        "total_file_count": 6
+      }
+    },
+    "models/pytorch/qwen-7b": {
+      "id": "models/pytorch/qwen-7b",
+      "name": "qwen-7b",
+      "path": "models\\pytorch\\qwen-7b",
+      "model_type": "pytorch",
+      "size": 337,
+      "config": {
+        "framework": "pytorch",
+        "model_type": "directory",
+        "directory_name": "qwen-7b",
+        "absolute_path": "D:\\homedev\\multiModel\\models\\pytorch\\qwen-7b",
+        "relative_path": "models\\pytorch\\qwen-7b",
+        "is_standalone": false,
+        "supports_streaming": true,
+        "requires_tokenizer": true,
+        "has_config": true,
+        "has_tokenizer": true,
+        "model_files": [],
+        "format": "pytorch",
+        "memory_efficient": false,
+        "model_architecture": "qwen",
+        "vocab_size": 151936,
+        "hidden_size": 4096,
+        "num_attention_heads": 32,
+        "num_hidden_layers": 32,
+        "file_count": 8,
+        "found_model_files": [
+          "pytorch_model-00001-of-00008.bin",
+          "pytorch_model-00002-of-00008.bin",
+          "pytorch_model-00003-of-00008.bin"
+        ],
+        "main_model_file": "pytorch_model-00001-of-00008.bin",
+        "total_file_count": 8
+      }
+    },
+    "models/pytorch/work0924": {
+      "id": "models/pytorch/work0924",
+      "name": "work0924",
+      "path": "models\\pytorch\\work0924",
+      "model_type": "pytorch",
+      "size": 423,
+      "config": {
+        "framework": "pytorch",
+        "model_type": "directory",
+        "directory_name": "work0924",
+        "absolute_path": "D:\\homedev\\multiModel\\models\\pytorch\\work0924",
+        "relative_path": "models\\pytorch\\work0924",
+        "is_standalone": false,
+        "supports_streaming": true,
+        "requires_tokenizer": true,
+        "has_config": true,
+        "has_tokenizer": true,
+        "model_files": [
+          "pytorch_model.bin"
+        ],
+        "format": "pytorch",
+        "memory_efficient": false,
+        "model_architecture": "llama",
+        "vocab_size": 32000,
+        "hidden_size": 4096,
+        "num_attention_heads": 32,
+        "num_hidden_layers": 32,
+        "max_position_embeddings": 2048,
+        "file_count": 7,
+        "found_model_files": [
+          "pytorch_model.bin"
+        ],
+        "main_model_file": "pytorch_model.bin",
+        "total_file_count": 7
+      }
+    },
+    "models/pytorch/standalone_model.bin": {
+      "id": "models/pytorch/standalone_model.bin",
+      "name": "standalone_model",
+      "path": "models\\pytorch\\standalone_model.bin",
+      "model_type": "pytorch",
+      "size": 39,
+      "config": {
+        "framework": "pytorch",
+        "supports_streaming": true,
+        "requires_tokenizer": true,
+        "format": "pytorch",
+        "memory_efficient": false,
+        "is_standalone": true
+      }
+    }
+  },
+  "selected_model_ids": [
+    "models/pytorch/qwen-7b",
+    "models/pytorch/chatglm3-6b"
+  ],
+  "last_scan_directories": [
+    "models"
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "available_models": {
+    "models/pytorch/work0925": {
+      "id": "models/pytorch/work0925",
+      "name": "work0925",
+      "path": "models\\pytorch\\work0925",
+      "model_type": "pytorch",
+      "size": 8060899124,
+      "config": {
+        "framework": "pytorch",
+        "model_type": "directory",
+        "directory_name": "work0925",
+        "absolute_path": "D:\\homedev\\multiModel\\models\\pytorch\\work0925",
+        "relative_path": "models\\pytorch\\work0925",
+        "is_standalone": false,
+        "supports_streaming": true,
+        "requires_tokenizer": true,
+        "has_config": true,
+        "has_tokenizer": true,
+        "sharded_index_files": [
+          "model.safetensors.index.json"
+        ],
+        "is_sharded": true,
+        "model_files": [],
+        "shard_count": 2,
+        "shard_files": [
+          "model-00001-of-00002.safetensors",
+          "model-00002-of-00002.safetensors"
+        ],
+        "total_parameters": 4022468096,
+        "total_size": 8044936192,
+        "weight_map_entries": 398,
+        "existing_shards": [
+          "model-00001-of-00002.safetensors",
+          "model-00002-of-00002.safetensors"
+        ],
+        "missing_shards": [],
+        "shards_complete": true,
+        "format": "safetensors",
+        "memory_efficient": true,
+        "model_architecture": "qwen3",
+        "vocab_size": 151936,
+        "hidden_size": 2560,
+        "num_attention_heads": 32,
+        "num_hidden_layers": 36,
+        "max_position_embeddings": 262144,
+        "file_count": 13,
+        "found_model_files": [
+          "model-00001-of-00002.safetensors",
+          "model-00002-of-00002.safetensors"
+        ],
+        "main_model_file": "model-00001-of-00002.safetensors",
+        "total_file_count": 13
+      }
+    },
+    "models/gguf/Qwen_Qwen3-4B-Instruct-2507-GGUF/Qwen_Qwen3-4B-Instruct-2507-bf16.gguf": {
+      "id": "models/gguf/Qwen_Qwen3-4B-Instruct-2507-GGUF/Qwen_Qwen3-4B-Instruct-2507-bf16.gguf",
+      "name": "Qwen_Qwen3-4B-Instruct-2507-bf16",
+      "path": "models\\gguf\\Qwen_Qwen3-4B-Instruct-2507-GGUF\\Qwen_Qwen3-4B-Instruct-2507-bf16.gguf",
+      "model_type": "gguf",
+      "size": 8051284928,
+      "config": {
+        "framework": "gguf",
+        "format": "gguf",
+        "supports_streaming": true,
+        "requires_tokenizer": false,
+        "cpu_optimized": true,
+        "quantization": "F16"
+      }
+    },
+    "models/gguf/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-bf16.gguf": {
+      "id": "models/gguf/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-bf16.gguf",
+      "name": "Qwen_Qwen3-4B-Thinking-2507-bf16",
+      "path": "models\\gguf\\Qwen_Qwen3-4B-Thinking-2507-GGUF\\Qwen_Qwen3-4B-Thinking-2507-bf16.gguf",
+      "model_type": "gguf",
+      "size": 8051284928,
+      "config": {
+        "framework": "gguf",
+        "format": "gguf",
+        "supports_streaming": true,
+        "requires_tokenizer": false,
+        "cpu_optimized": true,
+        "quantization": "F16"
+      }
+    }
+  },
+  "selected_model_ids": [
+    "models/gguf/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-bf16.gguf",
+    "models/pytorch/work0925",
+    "models/gguf/Qwen_Qwen3-4B-Instruct-2507-GGUF/Qwen_Qwen3-4B-Instruct-2507-bf16.gguf"
+  ],
+  "last_scan_directories": [
+    "models/pytorch",
+    "models/gguf"
+  ]
+}
